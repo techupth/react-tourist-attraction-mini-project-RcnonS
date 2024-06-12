@@ -1,4 +1,5 @@
 import axios from "axios";
+import React from "react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import linkIcon from "/src/svg/link_icon.svg";
@@ -12,12 +13,20 @@ function Homepage() {
 
   const LimitedChar = ({ text, limit }) => {
     const limitedText = text.length >= limit ? text.slice(0, limit) : text;
-
     return (
       <p className="description">
         {limitedText} <span className="dotContinueRead">...</span>
       </p>
     );
+  };
+
+  const handleClick = (tag) => {
+    if (searchAttraction !== "") {
+      let clicks = searchAttraction + " " + tag;
+      setSearchAttraction(clicks);
+    } else {
+      setSearchAttraction(tag);
+    }
   };
 
   const getAttraction = async (search) => {
@@ -36,6 +45,7 @@ function Homepage() {
 
   useEffect(() => {
     getAttraction(searchAttraction);
+    console.log({ searchAttraction });
   }, [searchAttraction]);
 
   return (
@@ -56,7 +66,6 @@ function Homepage() {
       {loadingStatus === "loading" && <h1>Loading...</h1>}
       {loadingStatus === "failed" && <h1>Fail to load data...</h1>}
       {loadingStatus === "completed" &&
-        attraction.length &&
         attraction.map((item) => {
           return (
             <div className="attractionList" key={item.eid}>
@@ -87,64 +96,49 @@ function Homepage() {
                 </p>
                 <p className="catagories">
                   หมวด{" "}
-                  <span
-                    className="eachCatagories"
-                    onClick={() => {
-                      setSearchAttraction(item.tags[0]);
-                    }}
-                  >
-                    {item.tags[0]}
-                  </span>
-                  <span
-                    className="eachCatagories"
-                    onClick={() => {
-                      setSearchAttraction(item.tags[1]);
-                    }}
-                  >
-                    {item.tags[1]}
-                  </span>
-                  <span
-                    className="eachCatagories"
-                    onClick={() => {
-                      setSearchAttraction(item.tags[2]);
-                    }}
-                  >
-                    {item.tags[2]}
-                  </span>
-                  <span
-                    className="eachCatagories"
-                    onClick={() => {
-                      setSearchAttraction(item.tags[3]);
-                    }}
-                  >
-                    {item.tags[3]}
-                  </span>
-                  และ{" "}
-                  <span
-                    className="eachCatagories"
-                    onClick={() => {
-                      setSearchAttraction(item.tags[4]);
-                    }}
-                  >
-                    {item.tags[4]}
-                  </span>
+                  {item.tags.map((tag, index) => {
+                    if (index === item.tags.length - 1) {
+                      return (
+                        <React.Fragment key={index}>
+                          <span>และ </span>
+                          <span
+                            className="eachCatagories"
+                            onClick={() => {
+                              handleClick(tag);
+                            }}
+                          >
+                            {tag}
+                          </span>
+                        </React.Fragment>
+                      );
+                    } else {
+                      return (
+                        <span
+                          key={index}
+                          className="eachCatagories"
+                          onClick={() => {
+                            handleClick(tag);
+                          }}
+                        >
+                          {tag}
+                        </span>
+                      );
+                    }
+                  })}
                 </p>
                 <div className="smallImage">
-                  <img
-                    src={item.photos[1]}
-                    alt=""
-                    className="smallAttractionImage"
-                  />
-                  <img
-                    src={item.photos[2]}
-                    alt=""
-                    className="smallAttractionImage"
-                  />
-                  <img
-                    src={item.photos[3]}
-                    alt=""
-                    className="smallAttractionImage"
-                  />
+                  {item.photos.map((photo, index) => {
+                    if (index !== 0) {
+                      return (
+                        <img
+                          src={photo}
+                          alt=""
+                          className="smallAttractionImage"
+                          key={index}
+                        />
+                      );
+                    }
+                  })}
                 </div>
                 <div className="copyLinkTag">
                   <img
